@@ -1,3 +1,4 @@
 [build]
   command = "uvicorn main:app --reload"
   publish = "./app"
+  python_version = "3.10"
