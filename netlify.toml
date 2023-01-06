@@ -1,3 +1,0 @@
-[build]
-  command = "uvicorn main:app --reload"
-  publish = "./app"
