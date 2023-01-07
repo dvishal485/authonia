@@ -5,7 +5,7 @@ import 'package:authonia/Screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Models/otp.dart';
+import '../APIs/otp.dart';
 import '../Models/auth_data.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(
-      const Duration(seconds: 30),
+      const Duration(seconds: 15),
       (timer) => setState(() {}),
     );
   }
@@ -98,7 +98,7 @@ class _AuthScreenState extends State<AuthScreen> {
           return ListTile(
             title: Text(data.issuer),
             subtitle: Text(data.user),
-            trailing: Text("$code"),
+            trailing: Text("$code".padLeft(6, '0')),
           );
         },
       ),

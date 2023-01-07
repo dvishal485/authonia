@@ -54,40 +54,59 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Login'),
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: <Widget>[
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _email = value!,
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextFormField(
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => _email = value!,
+                ),
               ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Password'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _password = value!,
-                obscureText: true,
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextFormField(
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => _password = value!,
+                  obscureText: true,
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    _login();
-                  }
-                },
-                child: const Text('Login'),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      _login();
+                    }
+                  },
+                  child: const Text('Login'),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: TextButton(
+                  onPressed: null,
+                  child: Text(
+                    "New user? Register here",
+                    style: TextStyle(color: Color.fromARGB(255, 120, 120, 170)),
+                  ),
+                ),
               ),
             ],
           ),
