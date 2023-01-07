@@ -4,13 +4,15 @@ import 'package:crypto/crypto.dart';
 import 'package:base32/base32.dart';
 
 class OTP {
-  static int generateTOTPCode(String secret, int time, {int length = 6}) {
+  static String generateTOTPCode(String secret, int time, {int length = 6}) {
     time = (((time ~/ 1000).round()) ~/ 30).floor();
-    return _generateCode(secret, time, length);
+    int code = _generateCode(secret, time, length);
+    return "$code".padLeft(length, '0');
   }
 
-  static int generateHOTPCode(String secret, int counter, {int length = 6}) {
-    return _generateCode(secret, counter, length);
+  static String generateHOTPCode(String secret, int counter, {int length = 6}) {
+    int code = _generateCode(secret, counter, length);
+    return "$code".padLeft(length, '0');
   }
 
   static int _generateCode(String secret, int time, int length) {
@@ -53,5 +55,4 @@ class OTP {
     }
     return byteArray;
   }
-
 }
