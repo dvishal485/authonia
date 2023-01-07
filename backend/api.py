@@ -2,6 +2,8 @@ from pymongo import MongoClient, ReturnDocument
 from os import environ as env
 from bson.dbref import DBRef
 from bson.objectid import ObjectId
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def mongodb_connect():
