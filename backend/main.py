@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import api
 
@@ -40,12 +40,8 @@ async def add_entry(req: Request):
     """
     Add a new entry to the database.
     """
-    try:
-        data_dict = await req.json()
-        return api.add_entry(data_dict)
-    except Exception as e:
-        print(e)
-        return HTTPException(status_code=500, detail=str(e))
+    data_dict = await req.json()
+    return api.add_entry(data_dict)
 
 
 @app.post('/get_entries')
@@ -53,12 +49,8 @@ async def get_entries(req: Request):
     """
     Get a list of entries from the database.
     """
-    try:
-        data_dict = await req.json()
-        return api.get_entries(data_dict)
-    except Exception as e:
-        print(e)
-        return HTTPException(status_code=500, detail=str(e))
+    data_dict = await req.json()
+    return api.get_entries(data_dict)
 
 
 @app.post('/register_user')
@@ -66,12 +58,8 @@ async def register_user(req: Request):
     """
     Register a new user.
     """
-    try:
-        data_dict = await req.json()
-        return api.register_user(data_dict)
-    except Exception as e:
-        print(e)
-        return HTTPException(status_code=500, detail=str(e))
+    data_dict = await req.json()
+    return api.register_user(data_dict)
 
 
 @app.post('/remove_entry')
@@ -79,9 +67,5 @@ async def remove_entry(req: Request):
     """
     Remove an entry from the database.
     """
-    try:
-        data_dict = await req.json()
-        return api.remove_entry(data_dict)
-    except Exception as e:
-        print(e)
-        return HTTPException(status_code=500, detail=str(e))
+    data_dict = await req.json()
+    return api.remove_entry(data_dict)

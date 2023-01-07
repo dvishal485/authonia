@@ -8,7 +8,11 @@ load_dotenv()
 
 
 def mongoClient():
-    return MongoClient(env['MONGODB_URI'])
+    try:
+        return MongoClient(env['MONGODB_URI'])
+    except Exception:
+        raise HTTPException(status_code=500,
+                            detail='Database connection error')
 
 
 def add_entry(data_dict: dict):
@@ -17,8 +21,8 @@ def add_entry(data_dict: dict):
     auth = client['authonia']['auth']
     secret = data_dict.get('secret', '')
     if secret == '':
-        return HTTPException(status_code=400,
-                             detail='Secret is required')
+        raise HTTPException(status_code=400,
+                            detail='Secret is required')
     with client.start_session() as session:
         session.start_transaction()
         try:
@@ -44,12 +48,12 @@ def add_entry(data_dict: dict):
                 return str(auth_entry.inserted_id)
             else:
                 session.abort_transaction()
-                return HTTPException(status_code=401,
-                                     detail='Invalid username/password')
+                raise HTTPException(status_code=401,
+                                    detail='Invalid username/password')
         except Exception as e:
             session.abort_transaction()
-            return HTTPException(status_code=500,
-                                 detail=str(e))
+            raise HTTPException(status_code=500,
+                                detail=str(e))
 
 
 def get_entries(data_dict: dict):
@@ -59,17 +63,20 @@ def get_entries(data_dict: dict):
         'username': data_dict.get('username', ''),
         'password': data_dict.get('password', '')
     })
-    if not user:
-        HTTPException(status_code=401,
-                      detail='Invalid username/password')
+    if user is None:
+        print('Invalid username/password')
+        raise HTTPException(status_code=401,
+                            detail='Invalid username/password')
     auth_ids = user['auth']
     auth_docs = []
     for auth_id in auth_ids:
-        ref = DBRef('auth', auth_id, 'authonia')
-        auth_doc: dict = client.dereference(ref)
-        auth_doc['_id'] = str(auth_doc['_id'])
-        auth_docs.append(auth_doc)
-
+        try:
+            ref = DBRef('auth', auth_id, 'authonia')
+            auth_doc: dict = client.dereference(ref)
+            auth_doc['_id'] = str(auth_doc['_id'])
+            auth_docs.append(auth_doc)
+        except Exception:
+            pass
     return auth_docs
 
 
@@ -125,8 +132,8 @@ def remove_entry(data_dict: dict):
             )
             if not user:
                 session.abort_transaction()
-                return HTTPException(status_code=401,
-                                     detail='Invalid username/password')
+                raise HTTPException(status_code=401,
+                                    detail='Invalid username/password')
             auth_result = auth.delete_one(
                 {
                     "_id": ObjectId(auth_id)
