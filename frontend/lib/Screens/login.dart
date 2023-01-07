@@ -1,17 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:authonia/APIs/get_auth_data.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../Models/auth_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_list.dart';
 
-List<AuthData> parseAuthData(String jsonString) {
-  final jsonData = jsonDecode(jsonString);
-  if (kDebugMode) {
-    print(jsonData);
-  }
-  return List<AuthData>.from(jsonData.map((x) => AuthData.fromJson(x)));
-}
+const _kHasLoggedIn = 'hasLoggedIn';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,41 +13,38 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkIfLoggedIn();
+  }
+
   final _formKey = GlobalKey<FormState>();
   String _email = "";
   String _password = "";
 
   Future<void> _login() async {
-    const uri = String.fromEnvironment('API_URL',
-        defaultValue: "https://s8a7ie.deta.dev");
-    final url = Uri.parse('$uri/get_entries');
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'username': _email,
-          'password': _password,
-        }));
-    if (kDebugMode) {
-      print(response.statusCode);
-    }
-
-    if (response.statusCode == 200) {
-      final authData = parseAuthData(response.body);
-      if (kDebugMode) {
-        print(authData[0].issuer);
+    // get_auth_data
+    getAuthData(_email, _password).then((value) {
+      if (value) {
+        final prefs = SharedPreferences.getInstance();
+        prefs.then((value) {
+          final authData = parseAuthData(value.getString('authdata')!);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AuthScreen(authData: authData),
+            ),
+          );
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login failed'),
+          ),
+        );
       }
-      if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AuthScreen(authData: authData),
-        ),
-      );
-    } else {
-      // Login failed
-    }
+    });
   }
 
   @override
@@ -64,43 +53,61 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Email'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter your email';
-                }
-                return null;
-              },
-              onSaved: (value) => _email = value!,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Password'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter your password';
-                }
-                return null;
-              },
-              onSaved: (value) => _password = value!,
-              obscureText: true,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  _login();
-                }
-              },
-              child: const Text('Login'),
-            ),
-          ],
+      body: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Email'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _email = value!,
+              ),
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Password'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _password = value!,
+                obscureText: true,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    _login();
+                  }
+                },
+                child: const Text('Login'),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _checkIfLoggedIn() {
+    SharedPreferences.getInstance().then((prefs) {
+      if (prefs.getBool(_kHasLoggedIn) ?? false) {
+        final authData = parseAuthData(prefs.getString('authdata')!);
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AuthScreen(authData: authData),
+          ),
+        );
+      }
+    });
   }
 }

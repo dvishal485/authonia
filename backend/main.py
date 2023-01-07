@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 import api
 
 app = FastAPI(
@@ -14,6 +15,14 @@ app = FastAPI(
         "name": "Apache 2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
     },
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://authonia.vercel.app"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
