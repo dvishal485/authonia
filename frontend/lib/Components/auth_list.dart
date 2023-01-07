@@ -1,4 +1,5 @@
 import 'package:authonia/APIs/get_auth_data.dart';
+import 'package:authonia/Components/add_manully.dart';
 import 'package:authonia/Components/auth_card.dart';
 import 'package:authonia/Components/login.dart';
 import 'package:flutter/material.dart';
@@ -67,12 +68,45 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: widget.authData.length,
-        itemBuilder: (context, index) {
-          final data = widget.authData[index];
-          return AuthCard(authData: data);
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView.builder(
+          itemCount: widget.authData.length,
+          itemBuilder: (context, index) {
+            final data = widget.authData[index];
+            return AuthCard(authData: data);
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return SizedBox(
+                height: 200,
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: const Text('Scan/Import'),
+                      trailing: const Icon(Icons.add_a_photo),
+                      onTap: () {},
+                    ),
+                    ListTile(
+                      title: const Text('Add Manually'),
+                      trailing: const Icon(Icons.edit),
+                      onTap: () async {
+                        await addManually(context);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
         },
+        backgroundColor: Colors.teal,
+        child: const Icon(Icons.add),
       ),
     );
   }

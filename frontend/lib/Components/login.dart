@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: !loading
                       ? ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.deepPurpleAccent,
                         )
                       : ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
