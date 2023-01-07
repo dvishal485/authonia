@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../Models/auth_data.dart';
+import 'package:authonia/Models/auth_data.dart';
 
-Future<bool> getAuthData(String username, String password) async {
+Future<Map<String, String>> getAuthData(
+    String username, String password) async {
   const uri = String.fromEnvironment('API_URL',
       defaultValue: "https://s8a7ie.deta.dev");
   final url = Uri.parse('$uri/get_entries');
@@ -18,14 +20,13 @@ Future<bool> getAuthData(String username, String password) async {
 
   if (response.statusCode == 200) {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('email', username);
+    prefs.setString('username', username);
     prefs.setString('password', password);
     prefs.setString('authdata', response.body);
     prefs.setBool('hasLoggedIn', true);
-    return true;
-  } else {
-    return false;
+    return {'error': 'false', 'content': response.body};
   }
+  return {'error': 'true', 'content': jsonDecode(response.body)['detail']};
 }
 
 List<AuthData> parseAuthData(String jsonString) {
