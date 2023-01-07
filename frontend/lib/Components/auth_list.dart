@@ -1,9 +1,8 @@
 import 'package:authonia/APIs/get_auth_data.dart';
+import 'package:authonia/Components/auth_card.dart';
 import 'package:authonia/Components/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:authonia/APIs/otp.dart';
 import 'package:authonia/Models/auth_data.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -16,16 +15,6 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   refresh() async {
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString('username')!;
@@ -82,13 +71,7 @@ class _AuthScreenState extends State<AuthScreen> {
         itemCount: widget.authData.length,
         itemBuilder: (context, index) {
           final data = widget.authData[index];
-          var code = OTP.generateTOTPCode(
-              data.secret, DateTime.now().millisecondsSinceEpoch);
-          return ListTile(
-            title: Text(data.issuer),
-            subtitle: Text(data.user),
-            trailing: Text(code),
-          );
+          return AuthCard(authData: data);
         },
       ),
     );
