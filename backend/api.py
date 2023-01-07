@@ -2,67 +2,80 @@ from pymongo import MongoClient, ReturnDocument
 from os import environ as env
 from bson.dbref import DBRef
 from bson.objectid import ObjectId
+from fastapi import HTTPException
 from dotenv import load_dotenv
 load_dotenv()
 
 
-def mongodb_connect():
-    return MongoClient(env['MONGODB_URI'])['authonia']
+def mongoClient():
+    return MongoClient(env['MONGODB_URI'])
 
 
 def add_entry(data_dict: dict):
-    try:
-        client = mongodb_connect()
-        users = client['users']
-        auth = client['auth']
-        entry = auth.insert_one({
-            'user': data_dict.get('user', ''),
-            'secret': data_dict.get('secret'),
-            'issuer': data_dict.get('issuer', ''),
-            'totp': data_dict.get('totp', True),
-        })
-        document = users.find_one_and_update({
-            'username': data_dict.get('username', ''),
-            'password': data_dict.get('password', ''),
-        },
-            {
-            "$push": {'auth': entry.inserted_id}
-        },
-            return_document=ReturnDocument.AFTER
-        )
-        return document['auth']
-    except Exception as e:
-        print(e)
-        return None
+    client = mongoClient()
+    users = client['authonia']['users']
+    auth = client['authonia']['auth']
+    secret = data_dict.get('secret', '')
+    if secret == '':
+        return HTTPException(status_code=400,
+                             detail='Secret is required')
+    with client.start_session() as session:
+        session.start_transaction()
+        try:
+            auth_entry = auth.insert_one({
+                'user': data_dict.get('user', ''),
+                'secret': secret,
+                'issuer': data_dict.get('issuer', ''),
+                'totp': data_dict.get('totp', True),
+            }, session=session)
+            modified = users.find_one_and_update({
+                'username': data_dict.get('username', ''),
+                'password': data_dict.get('password', '')
+            },
+                {
+                "$push": {'auth': auth_entry.inserted_id}
+            },
+                return_document=ReturnDocument.AFTER,
+                upsert=False,
+                session=session
+            )
+            if modified:
+                session.commit_transaction()
+                return str(auth_entry.inserted_id)
+            else:
+                session.abort_transaction()
+                return HTTPException(status_code=401,
+                                     detail='Invalid username/password')
+        except Exception as e:
+            session.abort_transaction()
+            return HTTPException(status_code=500,
+                                 detail=str(e))
 
 
 def get_entries(data_dict: dict):
-    try:
-        client = mongodb_connect()
-        users = client['users']
-        user = users.find_one({
-            'username': data_dict.get('username', ''),
-            'password': data_dict.get('password', '')
-        })
-        if not user:
-            return []
-        auth_ids = user['auth']
-        auth_docs = []
-        for auth_id in auth_ids:
-            ref = DBRef('auth', auth_id, 'authonia')
-            auth_doc: dict = client.dereference(ref)
-            auth_doc.pop('_id')
-            auth_docs.append(auth_doc)
+    client = mongoClient()['authonia']
+    users = client['users']
+    user = users.find_one({
+        'username': data_dict.get('username', ''),
+        'password': data_dict.get('password', '')
+    })
+    if not user:
+        HTTPException(status_code=401,
+                      detail='Invalid username/password')
+    auth_ids = user['auth']
+    auth_docs = []
+    for auth_id in auth_ids:
+        ref = DBRef('auth', auth_id, 'authonia')
+        auth_doc: dict = client.dereference(ref)
+        auth_doc['_id'] = str(auth_doc['_id'])
+        auth_docs.append(auth_doc)
 
-        return auth_docs
-    except Exception as e:
-        print(e)
-        return []
+    return auth_docs
 
 
 def register_user(data_dict: dict):
     try:
-        client = mongodb_connect()
+        client = mongoClient()['authonia']
         users = client['users']
         user = users.find_one({
             'username': data_dict.get('username', ''),
@@ -89,47 +102,52 @@ def register_user(data_dict: dict):
 
 
 def remove_entry(data_dict: dict):
-    try:
-        client = mongodb_connect()
-        users = client['users']
-        auth = client['auth']
+    client = mongoClient()
+    users = client['authonia']['users']
+    auth = client['authonia']['auth']
+    auth_id = data_dict['auth_id']
 
-        auth_id = data_dict['auth_id']
-        user = users.find_one_and_update(
-            {
-                'username': data_dict.get('username', ''),
-                'password': data_dict.get('password', '')
-            },
-            {"$pull":
-             {
-                 "auth": ObjectId(auth_id)
-             }
-             },
-            return_document=ReturnDocument.AFTER
-        )
-        if not user:
+    with client.start_session() as session:
+        session.start_transaction()
+        try:
+            user = users.find_one_and_update(
+                {
+                    'username': data_dict.get('username', ''),
+                    'password': data_dict.get('password', '')
+                },
+                {"$pull":
+                 {
+                     "auth": ObjectId(auth_id)
+                 }
+                 },
+                return_document=ReturnDocument.AFTER,
+                session=session
+            )
+            if not user:
+                session.abort_transaction()
+                return HTTPException(status_code=401,
+                                     detail='Invalid username/password')
+            auth_result = auth.delete_one(
+                {
+                    "_id": ObjectId(auth_id)
+                }, session=session
+            )
+
+            if auth_result.deleted_count == 1:
+                session.commit_transaction()
+                return {
+                    'error': False,
+                    'message': 'Auth removed sucessfully'
+                }
+            else:
+                session.abort_transaction()
+                return {
+                    'error': True,
+                    'message': 'Auth not found! Maybe it was already deleted.'
+                }
+        except Exception as e:
+            session.abort_transaction()
             return {
                 'error': True,
-                'message': 'Invalid username/password'
+                'message': str(e)
             }
-        auth_result = auth.delete_one(
-            {
-                "_id": ObjectId(auth_id)
-            }
-        )
-
-        if auth_result.deleted_count == 1:
-            return {
-                'error': False,
-                'message': 'Auth removed sucessfully'
-            }
-        else:
-            return {
-                'error': True,
-                'message': 'Auth not found! Maybe it was already deleted.'
-            }
-    except Exception as e:
-        return {
-            'error': True,
-            'message': str(e)
-        }

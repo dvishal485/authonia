@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import api
 
@@ -45,7 +45,7 @@ async def add_entry(req: Request):
         return api.add_entry(data_dict)
     except Exception as e:
         print(e)
-        return {'error': str(e)}
+        return HTTPException(status_code=500, detail=str(e))
 
 
 @app.post('/get_entries')
@@ -58,7 +58,7 @@ async def get_entries(req: Request):
         return api.get_entries(data_dict)
     except Exception as e:
         print(e)
-        return {'error': str(e)}
+        return HTTPException(status_code=500, detail=str(e))
 
 
 @app.post('/register_user')
@@ -71,7 +71,7 @@ async def register_user(req: Request):
         return api.register_user(data_dict)
     except Exception as e:
         print(e)
-        return {'error': str(e)}
+        return HTTPException(status_code=500, detail=str(e))
 
 
 @app.post('/remove_entry')
@@ -84,4 +84,4 @@ async def remove_entry(req: Request):
         return api.remove_entry(data_dict)
     except Exception as e:
         print(e)
-        return {'error': str(e)}
+        return HTTPException(status_code=500, detail=str(e))
