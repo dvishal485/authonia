@@ -1,12 +1,10 @@
-import 'dart:async';
-
 import 'package:authonia/APIs/get_auth_data.dart';
-import 'package:authonia/Screens/login.dart';
+import 'package:authonia/Components/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../APIs/otp.dart';
-import '../Models/auth_data.dart';
+import 'package:authonia/APIs/otp.dart';
+import 'package:authonia/Models/auth_data.dart';
 
 class AuthScreen extends StatefulWidget {
   final List<AuthData> authData;
@@ -18,48 +16,39 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  late Timer _timer;
-
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(
-      const Duration(seconds: 15),
-      (timer) => setState(() {}),
-    );
   }
 
   @override
   void dispose() {
-    _timer.cancel();
     super.dispose();
   }
 
   refresh() async {
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('email')!;
+    final username = prefs.getString('username')!;
     final password = prefs.getString('password')!;
     getAuthData(username, password).then((value) {
-      if (value) {
-        final authData = parseAuthData(prefs.getString('authdata')!);
-        setState(() {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AuthScreen(authData: authData),
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Data refreshed!'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-        });
-      } else {
+      if (value['error'] == 'false') {
+        final authData = parseAuthData(value['content']!);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AuthScreen(authData: authData),
+          ),
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Login failed'),
+            content: Text('Data refreshed!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(value['content']!),
           ),
         );
       }
@@ -98,7 +87,7 @@ class _AuthScreenState extends State<AuthScreen> {
           return ListTile(
             title: Text(data.issuer),
             subtitle: Text(data.user),
-            trailing: Text("$code".padLeft(6, '0')),
+            trailing: Text(code),
           );
         },
       ),
