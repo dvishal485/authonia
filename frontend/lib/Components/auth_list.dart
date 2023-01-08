@@ -69,15 +69,38 @@ class _AuthScreenState extends State<AuthScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
-          itemCount: widget.authData.length,
-          itemBuilder: (context, index) {
-            final data = widget.authData[index];
-            return AuthCard(authData: data);
-          },
-        ),
-      ),
+          padding: const EdgeInsets.all(8.0),
+          child: widget.authData.isNotEmpty
+              ? ListView.builder(
+                  itemCount: widget.authData.length,
+                  itemBuilder: (context, index) {
+                    final data = widget.authData[index];
+                    return AuthCard(authData: data);
+                  },
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Text(
+                        'No data found!\nStart by tapping the + button below.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: SizedBox(
+                          width: 250,
+                          child: Text(
+                              'If you have added data, try refreshing the data by tapping the refresh button on the top right corner.'),
+                        ),
+                      )
+                    ],
+                  ),
+                )),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(

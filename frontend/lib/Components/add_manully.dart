@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:authonia/APIs/get_auth_data.dart';
+import 'package:authonia/APIs/otp.dart';
 import 'package:authonia/Components/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,55 @@ Future<void> addManually(BuildContext context) async {
   final user = TextEditingController();
   final secret = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  void handleAdd() async {
+    final String issuerName = issuer.text;
+    final String userName = user.text;
+    final String secretValue = secret.text;
+    if (formKey.currentState!.validate()) {
+      const uri = String.fromEnvironment('API_URL',
+          defaultValue: "https://s8a7ie.deta.dev");
+      final url = Uri.parse('$uri/add_entry');
+      await SharedPreferences.getInstance().then((prefs) async => {
+            await http
+                .post(url,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: json.encode({
+                      'username': prefs.getString('username')!,
+                      'password': prefs.getString('password')!,
+                      'issuer': issuerName,
+                      'user': userName,
+                      'secret': secretValue,
+                    }))
+                .then((response) async => {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Adding new entry...'),
+                        ),
+                      ),
+                      if (response.statusCode == 200)
+                        {
+                          await getAuthData(prefs.getString('username')!,
+                                  prefs.getString('password')!)
+                              .then((_) => Navigator.of(context)
+                                  .pushReplacement(MaterialPageRoute(
+                                      builder: (context) =>
+                                          const LoginScreen())))
+                        }
+                      else
+                        {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Something went wrong'),
+                            ),
+                          ),
+                          Navigator.of(context).pop()
+                        }
+                    })
+          });
+    }
+  }
 
   return showCupertinoDialog<void>(
     context: context,
@@ -41,6 +91,12 @@ Future<void> addManually(BuildContext context) async {
                   if (value!.isEmpty) {
                     return 'Please enter a secret';
                   }
+                  try {
+                    OTP.generateTOTPCode(
+                        value, DateTime.now().millisecondsSinceEpoch);
+                  } catch (e) {
+                    return (e.toString());
+                  }
                   return null;
                 },
               ),
@@ -49,41 +105,7 @@ Future<void> addManually(BuildContext context) async {
         ),
         actions: <Widget>[
           TextButton(
-            onPressed: () async {
-              final String issuerName = issuer.text;
-              final String userName = user.text;
-              final String secretValue = secret.text;
-              if (formKey.currentState!.validate()) {
-                const uri = String.fromEnvironment('API_URL',
-                    defaultValue: "https://s8a7ie.deta.dev");
-                final url = Uri.parse('$uri/add_entry');
-                final prefs = await SharedPreferences.getInstance();
-                final response = await http.post(url,
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: json.encode({
-                      'username': prefs.getString('username')!,
-                      'password': prefs.getString('password')!,
-                      'issuer': issuerName,
-                      'user': userName,
-                      'secret': secretValue,
-                    }));
-                if (response.statusCode == 200) {
-                  getAuthData(prefs.getString('username')!,
-                      prefs.getString('password')!);
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => const LoginScreen()));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Something went wrong'),
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                }
-              }
-            },
+            onPressed: handleAdd,
             child: const Text('Add'),
           ),
         ],
