@@ -25,7 +25,13 @@ Future<Map<String, String>> getAuthData(
     prefs.setBool('hasLoggedIn', true);
     return {'error': 'false', 'content': response.body};
   }
-  return {'error': 'true', 'content': jsonDecode(response.body)['detail']};
+  String message;
+  try {
+    message = jsonDecode(response.body)['detail'];
+  } catch (e) {
+    message = response.body;
+  }
+  return {'error': 'true', 'content': message};
 }
 
 List<AuthData> parseAuthData(String jsonString) {
