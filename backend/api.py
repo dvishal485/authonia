@@ -82,10 +82,15 @@ def get_entries(data_dict: dict):
 
 def register_user(data_dict: dict):
     try:
+        if len(data_dict.get('username', '')) < 4 or len(data_dict.get('password', '')) < 4:
+            return {
+                'error': True,
+                'message': 'Username/Password must be atleast 4 characters long'
+            }
         client = mongoClient()['authonia']
         users = client['users']
         user = users.find_one({
-            'username': data_dict.get('username', ''),
+            'username': data_dict.get('username'),
         })
         if user:
             return {
@@ -93,8 +98,8 @@ def register_user(data_dict: dict):
                 'message': 'User already exists'
             }
         users.insert_one({
-            'username': data_dict.get('username', ''),
-            'password': data_dict.get('password', ''),
+            'username': data_dict.get('username'),
+            'password': data_dict.get('password'),
             'auth': []
         })
         return {
@@ -112,8 +117,10 @@ def remove_entry(data_dict: dict):
     client = mongoClient()
     users = client['authonia']['users']
     auth = client['authonia']['auth']
-    auth_id = data_dict['auth_id']
-
+    auth_id = data_dict.get('auth_id', '')
+    if auth_id == '':
+        raise HTTPException(status_code=400,
+                            detail='Auth ID is required')
     with client.start_session() as session:
         session.start_transaction()
         try:
