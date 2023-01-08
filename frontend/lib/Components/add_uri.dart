@@ -9,7 +9,7 @@ Future<void> addFromURI(BuildContext context) async {
 
   return showCupertinoDialog<void>(
     context: context,
-    barrierDismissible: false, // user must tap button!
+    barrierDismissible: true,
     builder: (context) {
       return AlertDialog(
         title: const Text('Add New Entry'),
@@ -46,10 +46,6 @@ Future<void> addFromURI(BuildContext context) async {
                 final String authURI = uriHandler.text;
                 final uri = Uri.parse(authURI);
                 if (uri.scheme == 'otpauth' && uri.host == 'totp') {
-                  if (kDebugMode) {
-                    print(uri.path);
-                    print(uri.queryParameters);
-                  }
                   addManually(context,
                       defUser:
                           Uri.decodeQueryComponent(uri.path).split(':').last,

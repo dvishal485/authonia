@@ -36,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => AuthScreen(authData: authData),
+            settings: const RouteSettings(name: 'AuthScreen'),
           ),
         );
       } else {
@@ -156,6 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => AuthScreen(authData: authData),
+            settings: const RouteSettings(name: 'AuthScreen'),
           ),
         );
       }

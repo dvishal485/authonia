@@ -12,7 +12,7 @@ Future<void> addManually(BuildContext context,
 
   return showCupertinoDialog<void>(
     context: context,
-    barrierDismissible: false, // user must tap button!
+    barrierDismissible: true,
     builder: (context) {
       return AlertDialog(
         title: const Text('Add New Entry'),
@@ -62,6 +62,26 @@ Future<void> addManually(BuildContext context,
                 final String issuerName = issuer.text;
                 final String userName = user.text;
                 final String secretValue = secret.text;
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (_) {
+                      return Dialog(
+                          child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            CircularProgressIndicator(),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
+                              child: Text('Adding to cloud...'),
+                            ),
+                          ],
+                        ),
+                      ));
+                    });
                 handleAddAuth(context, issuerName, userName, secretValue);
               }
             },

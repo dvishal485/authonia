@@ -28,6 +28,7 @@ class _AuthScreenState extends State<AuthScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => AuthScreen(authData: authData),
+            settings: const RouteSettings(name: 'AuthScreen'),
           ),
         );
         ScaffoldMessenger.of(context).showSnackBar(

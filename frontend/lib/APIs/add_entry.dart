@@ -33,19 +33,23 @@ void handleAddAuth(BuildContext context, String issuerName, String userName,
                     {
                       await getAuthData(prefs.getString('username')!,
                               prefs.getString('password')!)
-                          .then((_) => Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginScreen())))
+                          .then((_) {
+                        Navigator.popUntil(
+                            context, ModalRoute.withName('AuthScreen'));
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => const LoginScreen()));
+                      })
                     }
                   else
                     {
+                      Navigator.popUntil(
+                          context, ModalRoute.withName('AuthScreen')),
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Something went wrong'),
                         ),
                       ),
-                      Navigator.of(context).pop()
-                    }
+                    },
                 })
       });
 }
