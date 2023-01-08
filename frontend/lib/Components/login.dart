@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => RegisterPage()));
+                            builder: (context) => const RegisterPage()));
                   },
                   child: const Text(
                     "New user? Register here",

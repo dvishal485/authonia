@@ -1,6 +1,5 @@
 import 'package:authonia/Components/add_manully.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 Future<void> addFromURI(BuildContext context) async {
