@@ -52,6 +52,11 @@ Future<void> addManually(BuildContext context,
         ),
         actions: <Widget>[
           TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close')),
+          TextButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 final String issuerName = issuer.text;

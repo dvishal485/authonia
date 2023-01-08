@@ -36,6 +36,11 @@ Future<void> addFromURI(BuildContext context) async {
         ),
         actions: <Widget>[
           TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close')),
+          TextButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 final String authURI = uriHandler.text;
@@ -51,7 +56,6 @@ Future<void> addFromURI(BuildContext context) async {
                       defIssuer: uri.queryParameters['issuer'],
                       defSecret: uri.queryParameters['secret']);
                 }
-                //handleAdd(context, issuerName, userName, secretValue);
               }
             },
             child: const Text('Add'),
