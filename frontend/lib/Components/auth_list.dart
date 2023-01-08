@@ -1,5 +1,6 @@
 import 'package:authonia/APIs/get_auth_data.dart';
 import 'package:authonia/Components/add_manully.dart';
+import 'package:authonia/Components/add_uri.dart';
 import 'package:authonia/Components/auth_card.dart';
 import 'package:authonia/Components/login.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +121,13 @@ class _AuthScreenState extends State<AuthScreen> {
                       trailing: const Icon(Icons.edit),
                       onTap: () async {
                         await addManually(context);
+                      },
+                    ),
+                    ListTile(
+                      title: const Text('Add from URI'),
+                      trailing: const Icon(Icons.add_link),
+                      onTap: () async {
+                        await addFromURI(context);
                       },
                     ),
                   ],
