@@ -6,12 +6,14 @@ import 'package:base32/base32.dart';
 class OTP {
   static String generateTOTPCode(String secret, int time, {int length = 6}) {
     time = (((time ~/ 1000).round()) ~/ 30).floor();
-    int code = _generateCode(secret, time, length);
+    int code =
+        _generateCode(secret.replaceAll(' ', '').toUpperCase(), time, length);
     return "$code".padLeft(length, '0');
   }
 
   static String generateHOTPCode(String secret, int counter, {int length = 6}) {
-    int code = _generateCode(secret, counter, length);
+    int code = _generateCode(
+        secret.replaceAll(' ', '').toUpperCase(), counter, length);
     return "$code".padLeft(length, '0');
   }
 

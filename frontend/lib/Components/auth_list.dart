@@ -1,5 +1,6 @@
 import 'package:authonia/APIs/get_auth_data.dart';
 import 'package:authonia/Components/add_manully.dart';
+import 'package:authonia/Components/scan_qr.dart';
 import 'package:authonia/Components/add_uri.dart';
 import 'package:authonia/Components/auth_card.dart';
 import 'package:authonia/Components/login.dart';
@@ -115,7 +116,13 @@ class _AuthScreenState extends State<AuthScreen> {
                     ListTile(
                       title: const Text('Scan/Import'),
                       trailing: const Icon(Icons.add_a_photo),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ScanQR(),
+                          ),
+                        );
+                      },
                     ),
                     ListTile(
                       title: const Text('Add Manually'),

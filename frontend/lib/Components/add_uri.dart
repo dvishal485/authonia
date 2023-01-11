@@ -2,8 +2,8 @@ import 'package:authonia/Components/add_manully.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<void> addFromURI(BuildContext context) async {
-  final uriHandler = TextEditingController();
+Future<void> addFromURI(BuildContext context, {String? defaultUri}) async {
+  final uriHandler = TextEditingController(text: defaultUri);
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   return showCupertinoDialog<void>(
