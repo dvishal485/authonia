@@ -2,6 +2,18 @@
 
 2FA-TOTP Generation Cloud Platform
 
+## Table of Contents
+
+- [authonia](#authonia)
+  - [Table of Contents](#table-of-contents)
+  - [What is this?](#what-is-this)
+  - [Techstack used](#techstack-used)
+  - [How to use](#how-to-use)
+    - [Deployment in use](#deployment-in-use)
+      - [Application Download](#application-download)
+    - [Using your own deployment](#using-your-own-deployment)
+  - [License \& Copyright](#license--copyright)
+
 ---
 
 ## What is this?
@@ -26,6 +38,10 @@ This app can also be installed as a Progressive Web App (PWA) to work offline.
 ### Deployment in use
 
 - Navigate to [authonia.vercel.app](https://authonia.vercel.app) and register yourself.
+
+#### Application Download
+
+Navigate to [/frontend/README.md](./frontend/README.md#download) for more information.
 
 ### Using your own deployment
 
