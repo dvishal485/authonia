@@ -19,7 +19,7 @@ def add_entry(data_dict: dict):
     client = mongoClient()
     users = client['authonia']['users']
     auth = client['authonia']['auth']
-    secret = data_dict.get('secret', '')
+    secret = data_dict.get('secret', '').upper().replace(' ', '')
     if secret == '':
         raise HTTPException(status_code=400,
                             detail='Secret is required')
