@@ -7,8 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void handleAddAuth(BuildContext context, String issuerName, String userName,
     String secretValue) async {
-  const uri = String.fromEnvironment('API_URL',
-      defaultValue: "https://authonia-backend.vercel.app");
+  const uri = String.fromEnvironment('API_URL');
   final url = Uri.parse('$uri/add_entry');
   await SharedPreferences.getInstance().then((prefs) async => {
         await http

@@ -72,7 +72,9 @@ def get_entries(data_dict: dict):
     for auth_id in auth_ids:
         try:
             ref = DBRef('auth', auth_id, 'authonia')
-            auth_doc: dict = client.dereference(ref)
+            auth_doc = client.dereference(ref)
+            if auth_doc is None:
+                continue
             auth_doc['_id'] = str(auth_doc['_id'])
             auth_docs.append(auth_doc)
         except Exception:
