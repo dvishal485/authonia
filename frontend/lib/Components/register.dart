@@ -107,7 +107,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void register() async {
     try {
       const uri = String.fromEnvironment('API_URL',
-          defaultValue: "https://s8a7ie.deta.dev");
+          defaultValue: "https://authonia-backend.vercel.app");
       final url = Uri.parse('$uri/register_user');
       final response = await http.post(url,
           headers: {

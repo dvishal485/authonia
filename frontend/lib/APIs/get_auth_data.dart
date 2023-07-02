@@ -6,7 +6,7 @@ import 'package:authonia/Models/auth_data.dart';
 Future<Map<String, String>> getAuthData(
     String username, String password) async {
   const uri = String.fromEnvironment('API_URL',
-      defaultValue: "https://s8a7ie.deta.dev");
+      defaultValue: "https://authonia-backend.vercel.app");
   final url = Uri.parse('$uri/get_entries');
   final response = await http.post(url,
       headers: {
