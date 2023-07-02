@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthData {
   static const uri = String.fromEnvironment('API_URL',
-      defaultValue: "https://s8a7ie.deta.dev");
+      defaultValue: "https://authonia-backend.vercel.app");
 
   final String id;
   final String issuer;

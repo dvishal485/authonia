@@ -66,13 +66,13 @@ Future<void> addManually(BuildContext context,
                     barrierDismissible: false,
                     context: context,
                     builder: (_) {
-                      return Dialog(
+                      return const Dialog(
                           child: Padding(
-                        padding: const EdgeInsets.all(20.0),
+                        padding: EdgeInsets.all(20.0),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             CircularProgressIndicator(),
                             Padding(
                               padding: EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),

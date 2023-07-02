@@ -11,7 +11,11 @@ class ScanQR extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanQR> {
-  MobileScannerController cameraController = MobileScannerController();
+  MobileScannerController cameraController = MobileScannerController(
+    detectionSpeed: DetectionSpeed.normal,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+  );
   bool perms = false;
   late Timer timer;
   @override
@@ -61,11 +65,11 @@ class _ScanScreenState extends State<ScanQR> {
         body: Column(
           children: [
             if (!perms)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Center(child: CircularProgressIndicator()),
                     Padding(
                       padding: EdgeInsets.all(8.0),
@@ -77,24 +81,22 @@ class _ScanScreenState extends State<ScanQR> {
             Expanded(
               child: MobileScanner(
                   fit: BoxFit.scaleDown,
-                  allowDuplicates: false,
-                  onDetect: (barcode, args) {
-                    if (barcode.rawValue != null &&
-                        barcode.rawValue!.startsWith('otpauth://totp/')) {
+                  controller: cameraController,
+                  onDetect: (barcodes) {
+                    for (final barcode in barcodes.barcodes) {
                       final String url = barcode.rawValue!;
                       debugPrint('Barcode found! $url');
                       try {
                         final uri = Uri.parse(url);
                         if (uri.scheme == 'otpauth' && uri.host == 'totp') {
-                          cameraController.stop().then((_) {
-                            Navigator.pop(context);
-                            addManually(context,
-                                defUser: Uri.decodeQueryComponent(uri.path)
-                                    .split(':')
-                                    .last,
-                                defIssuer: uri.queryParameters['issuer'],
-                                defSecret: uri.queryParameters['secret']);
-                          });
+                          cameraController.dispose();
+                          Navigator.pop(context);
+                          addManually(context,
+                              defUser: Uri.decodeQueryComponent(uri.path)
+                                  .split(':')
+                                  .last,
+                              defIssuer: uri.queryParameters['issuer'],
+                              defSecret: uri.queryParameters['secret']);
                         }
                       } catch (e) {
                         debugPrint(e.toString());

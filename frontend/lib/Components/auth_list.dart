@@ -81,11 +81,11 @@ class _AuthScreenState extends State<AuthScreen> {
                     return AuthCard(authData: data);
                   },
                 )
-              : Center(
+              : const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
                         'No data found!\nStart by tapping the + button below.',
                         textAlign: TextAlign.center,

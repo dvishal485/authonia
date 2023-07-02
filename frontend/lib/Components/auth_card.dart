@@ -54,79 +54,89 @@ class _AuthCardState extends State<AuthCard> {
                 widget.authData.issuer,
                 style: const TextStyle(fontSize: 20),
               ),
-              GestureDetector(
-                onDoubleTap: () {},
-                onLongPress: () {},
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            widget.authData.user,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Text(
-                            OTP.generateTOTPCode(widget.authData.secret,
-                                DateTime.now().millisecondsSinceEpoch),
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'monospace'),
-                          ),
-                        ],
+              SizedBox(
+                height: 60,
+                child: GestureDetector(
+                  onDoubleTap: () {},
+                  onLongPress: () {},
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 130,
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                widget.authData.user,
+                                style: const TextStyle(fontSize: 16),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              OTP.generateTOTPCode(widget.authData.secret,
+                                  DateTime.now().millisecondsSinceEpoch),
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () async {
-                        final resp = await widget.authData.removeEntry();
-                        bool error = resp[0] as bool;
-                        String message = resp[1] as String;
-                        if (!error) {
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async {
+                          final resp = await widget.authData.removeEntry();
+                          bool error = resp[0] as bool;
+                          String message = resp[1] as String;
+                          if (!error) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(message),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LoginScreen()));
+                          } else {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(message),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.content_copy),
+                        onPressed: () {
+                          setState(() {});
+                          Clipboard.setData(
+                            ClipboardData(
+                                text: OTP.generateTOTPCode(
+                                    widget.authData.secret,
+                                    DateTime.now().millisecondsSinceEpoch)),
+                          );
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(message),
-                              duration: const Duration(seconds: 1),
+                            const SnackBar(
+                              content: Text('Copied to clipboard!'),
+                              duration: Duration(seconds: 1),
                             ),
                           );
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()));
-                        } else {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(message),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.content_copy),
-                      onPressed: () {
-                        setState(() {});
-                        Clipboard.setData(
-                          ClipboardData(
-                              text: OTP.generateTOTPCode(widget.authData.secret,
-                                  DateTime.now().millisecondsSinceEpoch)),
-                        );
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Copied to clipboard!'),
-                            duration: Duration(seconds: 1),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
