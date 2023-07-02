@@ -11,11 +11,7 @@ class ScanQR extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanQR> {
-  MobileScannerController cameraController = MobileScannerController(
-    detectionSpeed: DetectionSpeed.normal,
-    facing: CameraFacing.back,
-    torchEnabled: false,
-  );
+  MobileScannerController cameraController = MobileScannerController();
   bool perms = false;
   late Timer timer;
   @override
